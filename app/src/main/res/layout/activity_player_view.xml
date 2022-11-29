@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <FrameLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".PlayerViewActivity">
+
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            app:auto_show="true"
+            app:controller_layout_id="@layout/controller_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:resize_mode="fixed_width"
+            app:surface_type="surface_view"
+            app:use_controller="true" />
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="10dp"
+            app:srcCompat="@drawable/back"
+            app:tint="@color/opacity_50" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="13dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="Video Name"
+            android:textAllCaps="false"
+            android:textColor="@color/opacity_50"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/dash_prev"
+            android:layout_width="@dimen/controller_item_size"
+            android:layout_height="@dimen/controller_item_size"
+            android:layout_gravity="center"
+            android:layout_marginEnd="120dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/replay10"
+            app:tint="@color/opacity_50" />
+
+        <ImageView
+            android:id="@+id/playbtn"
+            android:layout_width="@dimen/controller_item_size"
+            android:layout_height="@dimen/controller_item_size"
+            android:layout_gravity="center"
+            android:background="?android:attr/selectableItemBackground"
+            app:srcCompat="@drawable/pause"
+            app:tint="@color/opacity_50" />
+
+        <ImageView
+            android:id="@+id/dash_forward"
+            android:layout_width="@dimen/controller_item_size"
+            android:layout_height="@dimen/controller_item_size"
+            android:layout_gravity="center"
+            android:layout_marginStart="120dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/forward10"
+            app:tint="@color/opacity_50" />
+
+    </FrameLayout>
+
+</layout>
