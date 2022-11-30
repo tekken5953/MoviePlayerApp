@@ -43,5 +43,4 @@
         app:layout_constraintEnd_toEndOf="@+id/exo_progress"
         app:layout_constraintStart_toEndOf="@+id/exo_position" />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>

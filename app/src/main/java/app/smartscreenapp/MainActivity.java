@@ -39,10 +39,10 @@ public class MainActivity extends AppCompatActivity {
             InputStream is = getAssets().open("jsons/data.json");
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader reader = new BufferedReader(isr);
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             String line = reader.readLine();
             while (line != null) {
-                buffer.append(line+"\n");
+                buffer.append(line).append("\n");
                 line=reader.readLine();
             }
 

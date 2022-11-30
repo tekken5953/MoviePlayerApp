@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="@+id/cardView"
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintStart_toEndOf="@+id/cardView"
-        android:text="동영상 이름"
+        android:text="Title"
         android:textColor="@color/primary_text_color"
         android:lines="1"
         android:ellipsize="end"
@@ -44,7 +44,7 @@
         app:layout_constraintTop_toTopOf="@+id/cardView"
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="mm:ss"
+        android:text="00:00"
         android:textColor="@color/primary_text_color"
         android:layout_marginEnd="15dp"
         android:id="@+id/videoTime"/>

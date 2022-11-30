@@ -69,17 +69,14 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
         VideoListItem item = mData.get(position);
 
-//        holder.thumbnail.setImageDrawable(item.getThumbnail());
         holder.title.setText(item.getTitle());
         holder.time.setText(item.getTime());
 
-
         Glide.with(context)
                 .load(item.getThumbnail())
-                .placeholder(null)
                 .error(R.drawable.no_thumbnail)
+                .override(55,85)
                 .into(holder.thumbnail);
-
     }
 
     // getItemCount() - 전체 데이터 갯수 리턴.
