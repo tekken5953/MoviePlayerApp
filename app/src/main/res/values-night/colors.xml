@@ -12,5 +12,5 @@
     <color name="primary_container_color">#000000</color>
 
     <color name="opacity_50">#B3FFFFFF</color>
-    <color name="opacity_60">#99FFFFFF</color>
+    <color name="opacity_80">#CCFFFFFF</color>
 </resources>
