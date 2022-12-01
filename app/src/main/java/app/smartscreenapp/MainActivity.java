@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,22 +21,77 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import app.smartscreenapp.databinding.ActivityMainBinding;
+
 public class MainActivity extends AppCompatActivity {
+    ActivityMainBinding binding;
     ArrayList<VideoListItem> mList = new ArrayList<>();
     VideoListAdapter adapter = new VideoListAdapter(mList);
     ArrayList<String> enter_uri = new ArrayList<>();
     ArrayList<String> enter_title = new ArrayList<>();
     MediaMetadataRetriever retriever;
+    int currentItemPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setHasFixedSize(true);
         retriever = new MediaMetadataRetriever();
+        binding.viewPager.setAdapter(adapter);
+        binding.viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+        binding.viewPager.setOffscreenPageLimit(3); // 관리하는 페이지 수. default = 1
+        // item_view 간의 양 옆 여백을 상쇄할 값
+//        int offsetBetweenPages = getResources().getDimensionPixelOffset(R.dimen.offsetBetweenPages);
+        binding.viewPager.setPageTransformer((page, position) -> {
+//            float myOffset = position * -(2 * offsetBetweenPages);
+            if (position < -1) {
+//                page.setTranslationX(-myOffset);
+            } else if (position <= 1) {
+                // Paging 시 Y축 Animation 배경색을 약간 연하게 처리
+                float min = 0.8f;
+                float scaleFactor = Math.min(min, 1 - Math.abs(position));
+//                page.setTranslationX(myOffset);
+                page.setScaleY(scaleFactor);
+//                page.setAlpha(scaleFactor);
+            } else {
+//                page.setAlpha(0f);
+//                page.setTranslationX(myOffset);
+            }
+        });
+
+        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                currentItemPosition = position;
+                Log.d("tag_main", "position is " + position);
+                binding.viewPagerTitle.setText(enter_title.get(position));
+                if (position == 0) {
+                    binding.leftArrow.setVisibility(View.INVISIBLE);
+                } else if (position == adapter.getItemCount() - 1) {
+                    binding.rightArrow.setVisibility(View.INVISIBLE);
+                } else {
+                    binding.leftArrow.setVisibility(View.VISIBLE);
+                    binding.rightArrow.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        binding.leftArrow.bringToFront();
+        binding.rightArrow.bringToFront();
+
+        binding.rightArrow.setOnClickListener(v -> {
+            if (currentItemPosition < adapter.getItemCount() - 1) {
+                binding.viewPager.setCurrentItem(currentItemPosition + 1, true);
+            }
+        });
+        binding.leftArrow.setOnClickListener(v -> {
+            if (currentItemPosition > 0) {
+                binding.viewPager.setCurrentItem(currentItemPosition - 1, true);
+            }
+        });
 
         try {
             InputStream is = getAssets().open("jsons/data.json");
@@ -59,12 +117,9 @@ public class MainActivity extends AppCompatActivity {
                 String url = Object.getString("sources").substring(2, Object.getString("sources").length() - 2);
                 String url_final = url.replace("\\/", "/");
                 enter_uri.add(url_final);
-                Uri uri = Uri.parse("http://storage.googleapis.com/gtv-videos-bucket/sample/" + Object.getString("thumb"));
-                String runtime = Object.getString("runtime");
+                Uri uri = Uri.parse(Object.getString("poster"));
+                addItem(uri);
 
-                addItem(uri,
-                        Object.getString("title"),
-                        runtime);
                 adapter.notifyItemInserted(i);
             }
         } catch (IOException | JSONException e) {
@@ -79,11 +134,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void addItem(Uri thumbnail, String title, String time) {
-        VideoListItem item = new VideoListItem(thumbnail, title, time);
+    private void addItem(Uri thumbnail) {
+        VideoListItem item = new VideoListItem(thumbnail);
         item.setThumbnail(thumbnail);
-        item.setTitle(title);
-        item.setTime(time);
 
         mList.add(item);
     }

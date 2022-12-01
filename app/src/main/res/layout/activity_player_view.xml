@@ -36,7 +36,7 @@
             android:lines="1"
             android:text="Video Name"
             android:textAllCaps="false"
-            android:textColor="@color/opacity_50"
+            android:textColor="@color/opacity_80"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -101,7 +101,7 @@
             android:layout_width="40dp"
             android:layout_height="200dp"
             android:layout_gravity="start|center_vertical"
-            android:layout_marginStart="20dp">
+            android:layout_marginStart="24dp">
 
             <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                 android:id="@+id/mySeekBar"

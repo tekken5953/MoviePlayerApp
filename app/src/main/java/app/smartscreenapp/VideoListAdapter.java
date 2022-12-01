@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,7 +35,7 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View view = inflater.inflate(R.layout.video_list_item, parent, false);
+        View view = inflater.inflate(R.layout.video_listitem, parent, false);
 
         return new ViewHolder(view);
     }
@@ -69,13 +68,9 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
         VideoListItem item = mData.get(position);
 
-        holder.title.setText(item.getTitle());
-        holder.time.setText(item.getTime());
-
         Glide.with(context)
                 .load(item.getThumbnail())
                 .error(R.drawable.no_thumbnail)
-                .override(55,85)
                 .into(holder.thumbnail);
     }
 
@@ -88,7 +83,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
     // 아이템 뷰를 저장하는 뷰홀더 클래스.
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView thumbnail;
-        TextView title, time;
 
         ViewHolder(final View itemView) {
             super(itemView);
@@ -115,9 +109,7 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
             });
 
             // 뷰 객체에 대한 참조. (hold strong reference)
-            thumbnail = itemView.findViewById(R.id.videoThumbnail);
-            title = itemView.findViewById(R.id.videoTitle);
-            time = itemView.findViewById(R.id.videoTime);
+            thumbnail = itemView.findViewById(R.id.listItemImg);
         }
     }
 }

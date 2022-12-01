@@ -51,4 +51,7 @@ dependencies {
 
     // Vertical SeekBar
     implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
+
+    //View Pager2
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
 }

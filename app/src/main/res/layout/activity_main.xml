@@ -4,18 +4,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_image"
     tools:context=".MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/main_recyclerView"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:listitem="@layout/video_list_item"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/viewPagerTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/left_arrow"
+        android:layout_width="110dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="35dp"
+        android:src="@drawable/left"
+        app:layout_constraintBottom_toBottomOf="@+id/viewPagerTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viewPagerTitle" />
+
+    <ImageView
+        android:id="@+id/right_arrow"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:paddingStart="35dp"
+        android:paddingEnd="0dp"
+        android:src="@drawable/right"
+        app:layout_constraintBottom_toBottomOf="@+id/viewPagerTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viewPagerTitle" />
+
+    <TextView
+        android:id="@+id/viewPagerTitle"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="10dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:text="Title"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/right_arrow"
+        app:layout_constraintStart_toEndOf="@+id/left_arrow" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
