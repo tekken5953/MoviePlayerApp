@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             String line = reader.readLine();
             while (line != null) {
                 buffer.append(line).append("\n");
-                line=reader.readLine();
+                line = reader.readLine();
             }
 
             //json파일명을 가져와서 String 변수에 담음
@@ -60,10 +60,11 @@ public class MainActivity extends AppCompatActivity {
                 String url_final = url.replace("\\/", "/");
                 enter_uri.add(url_final);
                 Uri uri = Uri.parse("http://storage.googleapis.com/gtv-videos-bucket/sample/" + Object.getString("thumb"));
+                String runtime = Object.getString("runtime");
 
                 addItem(uri,
                         Object.getString("title"),
-                        getPlayTime(url_final));
+                        runtime);
                 adapter.notifyItemInserted(i);
             }
         } catch (IOException | JSONException e) {
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.setOnItemClickListener((v, position) -> {
             Intent intent = new Intent(MainActivity.this, PlayerViewActivity.class);
             intent.putExtra("uri", enter_uri.get(position));
-            intent.putExtra("title",enter_title.get(position));
+            intent.putExtra("title", enter_title.get(position));
             startActivity(intent);
         });
     }
@@ -101,5 +102,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return minutes + ":" + seconds;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
