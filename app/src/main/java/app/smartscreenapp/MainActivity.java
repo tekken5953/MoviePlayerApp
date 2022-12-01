@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import app.smartscreenapp.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
+    //https://furang-note.tistory.com/25
     ActivityMainBinding binding;
     ArrayList<VideoListItem> mList = new ArrayList<>();
     VideoListAdapter adapter = new VideoListAdapter(mList);
