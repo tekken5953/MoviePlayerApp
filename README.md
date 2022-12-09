@@ -19,13 +19,13 @@ _본 앱은 코딩연습을 위한 TestApp이므로 내포된 자료나 파일�
 
 * 영상 리스트 화면(main)</br>
 
-</t>![record3_AdobeExpress](https://user-images.githubusercontent.com/52855326/205234675-7b72b656-6d73-4405-8b27-1481aa4643c4.gif)
+![record3_AdobeExpress](https://user-images.githubusercontent.com/52855326/205234675-7b72b656-6d73-4405-8b27-1481aa4643c4.gif)
 
 
 </br></br>
 * 영상 재생화면(player)</br>
 
-</t>![record4_AdobeExpress](https://user-images.githubusercontent.com/52855326/205235837-3c425d6e-6090-46e3-a914-e98cc15a2edb.gif)
+![record4_AdobeExpress](https://user-images.githubusercontent.com/52855326/205235837-3c425d6e-6090-46e3-a914-e98cc15a2edb.gif)
 
 
 
