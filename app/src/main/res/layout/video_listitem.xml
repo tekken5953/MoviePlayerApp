@@ -17,6 +17,7 @@
             android:id="@+id/listItemImg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="false"
             android:src="@drawable/bg_image" />
     </androidx.cardview.widget.CardView>
 
