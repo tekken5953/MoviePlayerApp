@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center"
     android:id="@+id/listItemMain">
 
-    <ImageView
-        android:id="@+id/listItemImg"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@drawable/bg_image" />
+        android:background="@android:color/transparent"
+        app:cardCornerRadius="15dp"
+        android:elevation="8dp">
+        <ImageView
+            android:id="@+id/listItemImg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bg_image" />
+    </androidx.cardview.widget.CardView>
+
 </RelativeLayout>

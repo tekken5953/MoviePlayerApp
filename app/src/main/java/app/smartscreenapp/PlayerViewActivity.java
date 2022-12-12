@@ -1,20 +1,18 @@
 package app.smartscreenapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -35,12 +33,51 @@ public class PlayerViewActivity extends AppCompatActivity {
     final String TAG_PLAYING = "tag_playing";
     Handler handler;
     AudioManager audioManager;
+    long current;
+    MediaItem firstItem;
 
     @Override
     protected void onStop() {
+        Log.d("mLifeCycle", "onStop");
         super.onStop();
         exoPlayer.stop();
         SharedPreferenceManager.setInt(this, "bright", binding.mySeekBar.getProgress());
+        if ((int) exoPlayer.getCurrentPosition() / 1000 != (int) exoPlayer.getDuration() / 1000) {
+            if ((int) exoPlayer.getCurrentPosition() / 1000 != 0) {
+                SharedPreferenceManager.setLong(this, binding.title.getText().toString() + "_time",
+                        exoPlayer.getCurrentPosition());
+            } else {
+                SharedPreferenceManager.setLong(this, binding.title.getText().toString() + "_time",
+                        0);
+            }
+        } else {
+            SharedPreferenceManager.removeKey(this, binding.title.getText().toString() + "_time");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("mLifeCycle", "onResume");
+        if ((int) SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time") / 1000 != 0)
+            current = SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time");
+        else
+            current = 0;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            if (current != 0) {
+                exoPlayer.clearMediaItems();
+                exoPlayer.setMediaItem(firstItem, current);
+                if (!exoPlayer.isPlaying()) {
+                    exoPlayer.prepare();
+                    exoPlayer.play();
+                }
+            }
+        }
     }
 
     @Override
@@ -71,13 +108,14 @@ public class PlayerViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("mLifeCycle", "onCreate");
         binding = ActivityPlayerViewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FullScreenMode();
         uri = getIntent().getExtras().getString("uri");
         title = getIntent().getExtras().getString("title");
         exoPlayer = new ExoPlayer.Builder(this).build();
-        MediaItem firstItem = MediaItem.fromUri(Uri.parse(uri));
+        firstItem = MediaItem.fromUri(Uri.parse(uri));
         handler = new Handler();
         exoPlayer.addMediaItem(0, firstItem);
         binding.title.setText(title);
@@ -163,7 +201,7 @@ public class PlayerViewActivity extends AppCompatActivity {
             if (visibility == View.VISIBLE) {
                 isControllerShowing = true;
                 Log.d(TAG_PLAYING, "컨트롤러 보임");
-                showSystemUI();
+                ShowNavBarOnly();
                 showSettings();
             } else if (visibility == View.GONE) {
                 isControllerShowing = false;
@@ -190,26 +228,25 @@ public class PlayerViewActivity extends AppCompatActivity {
         binding.mySeekBar.setVisibility(View.GONE);
     }
 
-    // 화면을 풀 스크린으로 사용합니다
+
+    // 몰입모드로 전환됩니다
     public void FullScreenMode() {
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         );
     }
 
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
+    // 몰입모드에서 시스템 네비게이션바만 보여줍니다
+    private void ShowNavBarOnly() {
+        getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE
         );
     }
 
