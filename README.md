@@ -19,7 +19,8 @@ _본 앱은 코딩연습을 위한 TestApp이므로 내포된 자료나 파일�
 
 * 영상 리스트 화면(main)</br></br>
 
-  ![record3_AdobeExpress](https://user-images.githubusercontent.com/52855326/205234675-7b72b656-6d73-4405-8b27-1481aa4643c4.gif)
+  ![record5_AdobeExpress](https://user-images.githubusercontent.com/52855326/206947766-458704f1-6178-4df1-b470-f3eabda84e1a.gif)
+
 
 
 </br></br>
