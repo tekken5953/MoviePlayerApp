@@ -1,14 +1,13 @@
 package app.smartscreenapp;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.media.MediaMetadataRetriever;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.view.DragEvent;
-import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import app.smartscreenapp.databinding.ActivityMainBinding;
+//https://developer.android.com/training/transitions/start-activity?hl=ko 공유가 있는 애니메이션
 
 public class MainActivity extends AppCompatActivity {
     //https://furang-note.tistory.com/25
@@ -37,27 +38,32 @@ public class MainActivity extends AppCompatActivity {
     int currentItemPosition = 0;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        binding.viewPager.setVisibility(View.GONE);
+        MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed((Runnable) () -> binding.viewPager.setVisibility(View.VISIBLE), 300);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-//        CompareVersionInfo compareVersionInfo = new CompareVersionInfo();
-//        compareVersionInfo.isRecentVersion(this);
-
 
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         binding.viewPager.setOffscreenPageLimit(3); // 관리하는 페이지 수. default = 1
         // item_view 간의 양 옆 여백을 상쇄할 값
         binding.viewPager.setPageTransformer((page, position) -> {
-            Log.d("tag_main","position : " +position);
+            Log.d("tag_main", "position : " + position);
             if (position % 1 != 0) {
                 // Paging 시 Y축 Animation 배경색을 약간 연하게 처리
                 float min = 0.8f;
                 float scaleFactor = Math.min(min, 1 - Math.abs(position));
                 page.setScaleY(scaleFactor);
-                binding.viewPager.setAlpha(0.8f);
+//                binding.viewPager.setAlpha(0.8f);
             } else {
                 binding.viewPager.setAlpha(1f);
             }
@@ -133,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("uri", enter_uri.get(position));
             intent.putExtra("title", enter_title.get(position));
             startActivity(intent);
+            MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
         });
     }
 

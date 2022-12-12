@@ -2,6 +2,8 @@ package app.smartscreenapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,11 +11,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
@@ -31,14 +36,16 @@ public class PlayerViewActivity extends AppCompatActivity {
     boolean isPlaying = false;
     boolean isControllerShowing = true;
     final String TAG_PLAYING = "tag_playing";
-    Handler handler;
+    final String TAG_LIFECYCLE = "tag_lifecycle";
     AudioManager audioManager;
     long current;
     MediaItem firstItem;
+    float saveDY,saveUY;
+    boolean isTouch = false;
 
     @Override
     protected void onStop() {
-        Log.d("mLifeCycle", "onStop");
+        Log.d(TAG_LIFECYCLE, "onStop");
         super.onStop();
         exoPlayer.stop();
         SharedPreferenceManager.setInt(this, "bright", binding.mySeekBar.getProgress());
@@ -58,7 +65,7 @@ public class PlayerViewActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("mLifeCycle", "onResume");
+        Log.d(TAG_LIFECYCLE, "onResume");
         if ((int) SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time") / 1000 != 0)
             current = SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time");
         else
@@ -99,7 +106,7 @@ public class PlayerViewActivity extends AppCompatActivity {
                 Log.d(TAG_PLAYING, "볼륨 다운");
                 return true;
             case KeyEvent.KEYCODE_BACK:
-                finish();
+                closePlayer();
                 return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -108,7 +115,7 @@ public class PlayerViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("mLifeCycle", "onCreate");
+        Log.d(TAG_LIFECYCLE, "onCreate");
         binding = ActivityPlayerViewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FullScreenMode();
@@ -116,7 +123,6 @@ public class PlayerViewActivity extends AppCompatActivity {
         title = getIntent().getExtras().getString("title");
         exoPlayer = new ExoPlayer.Builder(this).build();
         firstItem = MediaItem.fromUri(Uri.parse(uri));
-        handler = new Handler();
         exoPlayer.addMediaItem(0, firstItem);
         binding.title.setText(title);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -126,6 +132,7 @@ public class PlayerViewActivity extends AppCompatActivity {
         if (progress != -1) {
             binding.mySeekBar.setProgress(progress);
         } else {
+            // default bright
             binding.mySeekBar.setProgress(70);
         }
 
@@ -138,6 +145,38 @@ public class PlayerViewActivity extends AppCompatActivity {
                 exoPlayer.play();
             }
             isPlayVideo();
+        });
+
+        binding.playerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float width = binding.playerView.getWidth();
+                float getX = event.getX();
+                float getY = event.getY();
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (!isTouch) {
+                            if (getX >= width * 3 / 4) {
+                                isTouch = true;
+                                Log.d("testtest","DOWN y : " + getY);
+                                saveDY = getY;
+                            }
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (isTouch) {
+                            isTouch = false;
+                            Log.d("testtest", "UP y : " + getY);
+                            saveUY = getY;
+                            if (saveUY - saveDY > 300) {
+                                closePlayer();
+                            }
+                        }
+                        break;
+                }
+                return false;
+            }
         });
 
         binding.mySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -218,6 +257,12 @@ public class PlayerViewActivity extends AppCompatActivity {
         binding.dashPrev.setVisibility(View.VISIBLE);
         binding.playbtn.setVisibility(View.VISIBLE);
         binding.mySeekBar.setVisibility(View.VISIBLE);
+    }
+
+    private void closePlayer() {
+        PlayerViewActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        finish();
+        overridePendingTransition(0,R.anim.down);
     }
 
     private void hideSettings() {
