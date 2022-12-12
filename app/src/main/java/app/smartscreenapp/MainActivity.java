@@ -1,10 +1,13 @@
 package app.smartscreenapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -30,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     VideoListAdapter adapter = new VideoListAdapter(mList);
     ArrayList<String> enter_uri = new ArrayList<>();
     ArrayList<String> enter_title = new ArrayList<>();
-    MediaMetadataRetriever retriever;
+
     int currentItemPosition = 0;
 
     @Override
@@ -39,26 +42,24 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        retriever = new MediaMetadataRetriever();
+//        CompareVersionInfo compareVersionInfo = new CompareVersionInfo();
+//        compareVersionInfo.isRecentVersion(this);
+
+
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         binding.viewPager.setOffscreenPageLimit(3); // 관리하는 페이지 수. default = 1
         // item_view 간의 양 옆 여백을 상쇄할 값
-//        int offsetBetweenPages = getResources().getDimensionPixelOffset(R.dimen.offsetBetweenPages);
         binding.viewPager.setPageTransformer((page, position) -> {
-//            float myOffset = position * -(2 * offsetBetweenPages);
-            if (position < -1) {
-//                page.setTranslationX(-myOffset);
-            } else if (position <= 1) {
+            Log.d("tag_main","position : " +position);
+            if (position % 1 != 0) {
                 // Paging 시 Y축 Animation 배경색을 약간 연하게 처리
                 float min = 0.8f;
                 float scaleFactor = Math.min(min, 1 - Math.abs(position));
-//                page.setTranslationX(myOffset);
                 page.setScaleY(scaleFactor);
-//                page.setAlpha(scaleFactor);
+                binding.viewPager.setAlpha(0.8f);
             } else {
-//                page.setAlpha(0f);
-//                page.setTranslationX(myOffset);
+                binding.viewPager.setAlpha(1f);
             }
         });
 
@@ -140,22 +141,6 @@ public class MainActivity extends AppCompatActivity {
         item.setThumbnail(thumbnail);
 
         mList.add(item);
-    }
-
-    private String getPlayTime(String path) {
-        retriever.setDataSource(path);
-        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long timeInmillisec = Long.parseLong(time);
-        long duration = timeInmillisec / 1000;
-        long minutes = (duration) / 60;
-        long seconds = duration - (minutes * 60);
-        if (minutes == 0) {
-            return "0:" + seconds;
-        } else if (seconds == 0) {
-            return minutes + ":00";
-        } else {
-            return minutes + ":" + seconds;
-        }
     }
 
     @Override
