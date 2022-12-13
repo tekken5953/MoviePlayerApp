@@ -1,7 +1,6 @@
 package app.smartscreenapp;
 
-import android.app.Activity;
-import android.content.Context;
+import android.app.Application;
 import android.net.Uri;
 import android.util.Log;
 
@@ -16,33 +15,32 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class JsonDocument {
-    Context context;
     static final String TAG_DOCUMENT = "TAG_document";
 
     private InputStream inputStream;
     private BufferedReader bufferedReader;
-    private StringBuilder bufferSB = new StringBuilder();
-    private JSONObject videoJsonObject;
-    private ArrayList<String> titleStringArrays = new ArrayList<>();
-    private ArrayList<String> videoURLArrays = new ArrayList<>();
-    private ArrayList<Uri> posterURIArrays = new ArrayList<>();
+    private final StringBuilder bufferSB = new StringBuilder();
+    private final ArrayList<String> titleStringArrays = new ArrayList<>();
+    private final ArrayList<String> videoURLArrays = new ArrayList<>();
+    private final ArrayList<Uri> posterURIArrays = new ArrayList<>();
     private int lineCount = 0;
 
-    public JsonDocument(Activity activity) {
+    public JsonDocument(Application application) {
         super();
-        context = activity.getApplicationContext();
         Log.d(TAG_DOCUMENT, "Created Json Document Class");
 
-        if (context != null) {
+        if (application != null) {
+            try {
+                inputStream = application.getAssets().open("jsons/data.json");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             readLine();
             getAllData();
         } else {
             Log.e(TAG_DOCUMENT, "Context is Null");
         }
-    }
-
-    private void readFile() throws IOException {
-        inputStream = context.getAssets().open("json/data.json");
     }
 
     private void makeBuffer() {
@@ -52,7 +50,6 @@ public class JsonDocument {
 
     private void readLine() {
         try {
-            readFile();
             makeBuffer();
             String lineStr = bufferedReader.readLine();
             while (lineStr != null) {
@@ -67,24 +64,20 @@ public class JsonDocument {
 
     private void getAllData() {
         try {
-            if (bufferSB != null) {
-                String bufferStr = bufferSB.toString();
-                videoJsonObject = new JSONObject(bufferStr);
-                JSONArray videoJsonArray = videoJsonObject.getJSONArray("videos"); //배열의 이름
-                lineCount = videoJsonArray.length();
+            String bufferStr = bufferSB.toString();
+            JSONObject videoJsonObject = new JSONObject(bufferStr);
+            JSONArray videoJsonArray = videoJsonObject.getJSONArray("videos"); //배열의 이름
+            lineCount = videoJsonArray.length();
 
-                for (int i = 0; i < lineCount; i++) {
-                    JSONObject Object = videoJsonArray.getJSONObject(i);
-                    String title = Object.getString("title");
-                    titleStringArrays.add(title);
-                    String videoURL = Object.getString("sources")
-                            .substring(2, Object.getString("sources").length() - 2)
-                            .replace("\\/", "/");
-                    videoURLArrays.add(videoURL);
-                    posterURIArrays.add(Uri.parse(Object.getString("poster")));
-                }
-            } else {
-                Log.e(TAG_DOCUMENT,"buffer is empty");
+            for (int i = 0; i < lineCount; i++) {
+                JSONObject Object = videoJsonArray.getJSONObject(i);
+                String title = Object.getString("title");
+                titleStringArrays.add(title);
+                String videoURL = Object.getString("sources")
+                        .substring(2, Object.getString("sources").length() - 2)
+                        .replace("\\/", "/");
+                videoURLArrays.add(videoURL);
+                posterURIArrays.add(Uri.parse(Object.getString("poster")));
             }
         } catch (JSONException e) {
             Log.e(TAG_DOCUMENT, "JSONException Occurred");

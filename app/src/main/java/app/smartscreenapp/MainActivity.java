@@ -3,6 +3,7 @@ package app.smartscreenapp;
 import static app.smartscreenapp.PlayerViewActivity.TAG_LIFECYCLE;
 
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -36,10 +37,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<VideoListItem> mList = new ArrayList<>();
     VideoListAdapter adapter = new VideoListAdapter(mList);
     Handler handler;
-    JsonDocument jsonDocument = new JsonDocument(MainActivity.this);
     final String TAG_MAIN = "tag_main";
 
     int currentItemPosition = 0;
+    JsonDocument jsonDocument;
 
     @Override
     protected void onResume() {
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
         settingViewPager();
 
+        jsonDocument = new JsonDocument(getApplication());
+
         binding.rightArrow.setOnClickListener(v -> {
             if (currentItemPosition < adapter.getItemCount() - 1) {
                 binding.viewPager.setCurrentItem(currentItemPosition + 1, true);
@@ -83,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             makeScreenLandscape();
         });
-
 
         for (int i = 0; i < jsonDocument.getItemCount(); i++) {
             binding.viewPagerTitle.setText(jsonDocument.getTitles().get(i));
