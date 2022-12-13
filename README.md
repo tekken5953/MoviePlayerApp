@@ -1,7 +1,7 @@
 <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white"> <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=Android&logoColor=white"> <img src="https://img.shields.io/badge/JAVA-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white">
 </br></br>
 
-<h1>간단한 영상 플레이어 앱</h1></br>
+<h1>간단한 영상 플레이어 앱(Video Player App)</h1></br>
 
 
 
@@ -14,7 +14,7 @@ _본 앱은 코딩연습을 위한 TestApp이므로 내포된 자료나 파일�
 ----
 </br></br>
 
-<h2>1. 화면 구성</h2></br>
+<h2>1. 화면 구성(Layout)</h2></br>
 
 
 * 영상 리스트 화면(main)</br></br>
@@ -31,7 +31,7 @@ _본 앱은 코딩연습을 위한 TestApp이므로 내포된 자료나 파일�
 
 
 </br></br>
-<h2>2. 사용한 라이브러리</h2></br>
+<h2>2. 사용한 라이브러리(Libraries)</h2></br>
 
 </br>
 * ExoPlayer</br>
