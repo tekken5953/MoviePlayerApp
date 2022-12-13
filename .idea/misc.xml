@@ -6,6 +6,7 @@
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/bright.xml" value="0.212" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/bright_seek_bar_custom.xml" value="0.212" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/bright_seekbar_thumb.xml" value="0.212" />
+        <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/clear.xml" value="0.212" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/left.xml" value="0.1235" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/listitem_bg.xml" value="0.212" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/drawable/next_double.xml" value="0.212" />
@@ -17,6 +18,8 @@
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/activity_main2.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/activity_player_view.xml" value="0.176" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/controller_layout.xml" value="0.2" />
+        <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/noti_large_layout.xml" value="0.25364583333333335" />
+        <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/notify_small.xml" value="0.2526041666666667" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/overlay.xml" value="0.2526041666666667" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/video_list_item.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/USER/AndroidStudioProjects/SmartScreenApp/app/src/main/res/layout/video_listitem.xml" value="0.264" />
