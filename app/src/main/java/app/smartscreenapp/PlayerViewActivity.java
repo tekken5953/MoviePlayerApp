@@ -1,11 +1,17 @@
 package app.smartscreenapp;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,14 +21,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.widget.RemoteViews;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.FlagSet;
 
 import app.smartscreenapp.databinding.ActivityPlayerViewBinding;
 
@@ -35,13 +44,14 @@ public class PlayerViewActivity extends AppCompatActivity {
     String uri, title;
     boolean isPlaying = false;
     boolean isControllerShowing = true;
-    final String TAG_PLAYING = "tag_playing";
-    final String TAG_LIFECYCLE = "tag_lifecycle";
+    static final String TAG_PLAYING = "tag_playing";
+    static final String TAG_LIFECYCLE = "tag_lifecycle";
     AudioManager audioManager;
     long current;
     MediaItem firstItem;
-    float saveDY,saveUY;
+    float saveDY, saveUY;
     boolean isTouch = false;
+    NotificationSetting setting = new NotificationSetting();
 
     @Override
     protected void onStop() {
@@ -60,6 +70,8 @@ public class PlayerViewActivity extends AppCompatActivity {
         } else {
             SharedPreferenceManager.removeKey(this, binding.title.getText().toString() + "_time");
         }
+
+        setting.showNotification(this);
     }
 
     @Override
@@ -119,8 +131,11 @@ public class PlayerViewActivity extends AppCompatActivity {
         binding = ActivityPlayerViewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FullScreenMode();
-        uri = getIntent().getExtras().getString("uri");
-        title = getIntent().getExtras().getString("title");
+        if (getIntent().getExtras().getString("url") != null &&
+                getIntent().getExtras().getString("title") != null) {
+            uri = getIntent().getExtras().getString("url");
+            title = getIntent().getExtras().getString("title");
+        }
         exoPlayer = new ExoPlayer.Builder(this).build();
         firstItem = MediaItem.fromUri(Uri.parse(uri));
         exoPlayer.addMediaItem(0, firstItem);
@@ -128,6 +143,18 @@ public class PlayerViewActivity extends AppCompatActivity {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         int progress = SharedPreferenceManager.getInt(this, "bright");
+
+        if (getIntent().getCategories() != null && getIntent().getCategories().contains("AppBarNotification")) {
+            String s = SharedPreferenceManager.getString(this, "recent");
+            MediaItem item = MediaItem.fromUri(Uri.parse(s));
+            if ((int) SharedPreferenceManager.getLong(this,
+                    binding.title.getText().toString() + "_time") / 1000 != 0) {
+                exoPlayer.setMediaItem(item, (int) SharedPreferenceManager.getLong(this,
+                        binding.title.getText().toString() + "_time") / 1000);
+            } else {
+                exoPlayer.setMediaItem(item);
+            }
+        }
 
         if (progress != -1) {
             binding.mySeekBar.setProgress(progress);
@@ -159,7 +186,7 @@ public class PlayerViewActivity extends AppCompatActivity {
                         if (!isTouch) {
                             if (getX >= width * 3 / 4) {
                                 isTouch = true;
-                                Log.d("testtest","DOWN y : " + getY);
+                                Log.d("testtest", "DOWN y : " + getY);
                                 saveDY = getY;
                             }
                         }
@@ -262,7 +289,7 @@ public class PlayerViewActivity extends AppCompatActivity {
     private void closePlayer() {
         PlayerViewActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         finish();
-        overridePendingTransition(0,R.anim.down);
+        overridePendingTransition(0, R.anim.down);
     }
 
     private void hideSettings() {

@@ -1,5 +1,9 @@
 package app.smartscreenapp;
 
+import static app.smartscreenapp.PlayerViewActivity.TAG_LIFECYCLE;
+
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -32,18 +36,21 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     ArrayList<VideoListItem> mList = new ArrayList<>();
     VideoListAdapter adapter = new VideoListAdapter(mList);
-    ArrayList<String> enter_uri = new ArrayList<>();
-    ArrayList<String> enter_title = new ArrayList<>();
+    Handler handler;
+    final String TAG_MAIN = "tag_main";
 
     int currentItemPosition = 0;
+    JsonDocument jsonDocument;
 
     @Override
     protected void onResume() {
         super.onResume();
         binding.viewPager.setVisibility(View.GONE);
-        MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        Handler handler = new Handler(Looper.getMainLooper());
+        makeScreenPortrait();
+        handler = new Handler(Looper.getMainLooper());
         handler.postDelayed((Runnable) () -> binding.viewPager.setVisibility(View.VISIBLE), 300);
+        binding.leftArrow.bringToFront();
+        binding.rightArrow.bringToFront();
     }
 
     @Override
@@ -52,20 +59,54 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        LifeCycleChecker checker = new LifeCycleChecker();
+        checker.onCreate();
+
+        settingViewPager();
+
+        jsonDocument = new JsonDocument(getApplication());
+
+        binding.rightArrow.setOnClickListener(v -> {
+            if (currentItemPosition < adapter.getItemCount() - 1) {
+                binding.viewPager.setCurrentItem(currentItemPosition + 1, true);
+            }
+        });
+
+        binding.leftArrow.setOnClickListener(v -> {
+            if (currentItemPosition > 0) {
+                binding.viewPager.setCurrentItem(currentItemPosition - 1, true);
+            }
+        });
+
+        adapter.setOnItemClickListener((v, position) -> {
+            Intent intent = new Intent(MainActivity.this, PlayerViewActivity.class);
+            intent.putExtra("url", jsonDocument.getVideoURLs().get(position));
+            intent.putExtra("title", binding.viewPagerTitle.getText().toString());
+            SharedPreferenceManager.setString(this, "recent", jsonDocument.getVideoURLs().get(position));
+            startActivity(intent);
+            makeScreenLandscape();
+        });
+
+        for (int i = 0; i < jsonDocument.getItemCount(); i++) {
+            binding.viewPagerTitle.setText(jsonDocument.getTitles().get(i));
+            addItem(jsonDocument.getPosterURIs().get(i));
+            adapter.notifyItemInserted(i);
+        }
+    }
+
+    private void settingViewPager() {
+        // Setting ViewPager
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         binding.viewPager.setOffscreenPageLimit(3); // 관리하는 페이지 수. default = 1
         // item_view 간의 양 옆 여백을 상쇄할 값
         binding.viewPager.setPageTransformer((page, position) -> {
-            Log.d("tag_main", "position : " + position);
+            Log.d(TAG_MAIN, "position : " + position);
             if (position % 1 != 0) {
-                // Paging 시 Y축 Animation 배경색을 약간 연하게 처리
                 float min = 0.8f;
                 float scaleFactor = Math.min(min, 1 - Math.abs(position));
                 page.setScaleY(scaleFactor);
 //                binding.viewPager.setAlpha(0.8f);
-            } else {
-                binding.viewPager.setAlpha(1f);
             }
         });
 
@@ -74,80 +115,32 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 currentItemPosition = position;
-                Log.d("tag_main", "position is " + position);
-                binding.viewPagerTitle.setText(enter_title.get(position));
+                Log.d(TAG_MAIN, "position is " + position);
+                binding.viewPagerTitle.setText(jsonDocument.getTitles().get(position));
                 if (position == 0) {
-                    binding.leftArrow.setVisibility(View.INVISIBLE);
+                    binding.leftArrow.setVisibility(View.GONE);
                 } else if (position == adapter.getItemCount() - 1) {
-                    binding.rightArrow.setVisibility(View.INVISIBLE);
+                    binding.rightArrow.setVisibility(View.GONE);
                 } else {
                     binding.leftArrow.setVisibility(View.VISIBLE);
                     binding.rightArrow.setVisibility(View.VISIBLE);
                 }
             }
         });
-
-        binding.leftArrow.bringToFront();
-        binding.rightArrow.bringToFront();
-
-        binding.rightArrow.setOnClickListener(v -> {
-            if (currentItemPosition < adapter.getItemCount() - 1) {
-                binding.viewPager.setCurrentItem(currentItemPosition + 1, true);
-            }
-        });
-        binding.leftArrow.setOnClickListener(v -> {
-            if (currentItemPosition > 0) {
-                binding.viewPager.setCurrentItem(currentItemPosition - 1, true);
-            }
-        });
-
-        try {
-            InputStream is = getAssets().open("jsons/data.json");
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader reader = new BufferedReader(isr);
-            StringBuilder buffer = new StringBuilder();
-            String line = reader.readLine();
-            while (line != null) {
-                buffer.append(line).append("\n");
-                line = reader.readLine();
-            }
-
-            //json파일명을 가져와서 String 변수에 담음
-            String json = buffer.toString();
-            JSONObject jsonObject = new JSONObject(json);
-
-            //배열로된 자료를 가져올때
-            JSONArray Array = jsonObject.getJSONArray("videos");//배열의 이름
-            for (int i = 0; i < Array.length(); i++) {
-                JSONObject Object = Array.getJSONObject(i);
-                String title = Object.getString("title");
-                enter_title.add(title);
-                String url = Object.getString("sources").substring(2, Object.getString("sources").length() - 2);
-                String url_final = url.replace("\\/", "/");
-                enter_uri.add(url_final);
-                Uri uri = Uri.parse(Object.getString("poster"));
-                addItem(uri);
-
-                adapter.notifyItemInserted(i);
-            }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-
-        adapter.setOnItemClickListener((v, position) -> {
-            Intent intent = new Intent(MainActivity.this, PlayerViewActivity.class);
-            intent.putExtra("uri", enter_uri.get(position));
-            intent.putExtra("title", enter_title.get(position));
-            startActivity(intent);
-            MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
-        });
     }
 
-    private void addItem(Uri thumbnail) {
-        VideoListItem item = new VideoListItem(thumbnail);
-        item.setThumbnail(thumbnail);
-
+    private void addItem(Uri imgUri) {
+        VideoListItem item = new VideoListItem(imgUri);
+        item.setThumbnail(imgUri);
         mList.add(item);
+    }
+
+    private void makeScreenPortrait() {
+        MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
+
+    private void makeScreenLandscape() {
+        MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
     }
 
     @Override

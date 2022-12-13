@@ -59,4 +59,6 @@ dependencies {
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
     implementation 'com.github.tekken5953:AsTextView:1.0.1'
+
+    implementation 'androidx.lifecycle:lifecycle-process:2.5.1'
 }
