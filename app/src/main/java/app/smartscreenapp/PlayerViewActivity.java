@@ -1,17 +1,11 @@
 package app.smartscreenapp;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,18 +14,14 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.widget.RemoteViews;
+import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.LinearLayoutCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.util.FlagSet;
 
 import app.smartscreenapp.databinding.ActivityPlayerViewBinding;
 
@@ -51,7 +41,6 @@ public class PlayerViewActivity extends AppCompatActivity {
     MediaItem firstItem;
     float saveDY, saveUY;
     boolean isTouch = false;
-    NotificationSetting setting = new NotificationSetting();
 
     @Override
     protected void onStop() {
@@ -70,18 +59,13 @@ public class PlayerViewActivity extends AppCompatActivity {
         } else {
             SharedPreferenceManager.removeKey(this, binding.title.getText().toString() + "_time");
         }
-
-        setting.showNotification(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG_LIFECYCLE, "onResume");
-        if ((int) SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time") / 1000 != 0)
-            current = SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time");
-        else
-            current = 0;
+        playLoadTime();
     }
 
     @Override
@@ -103,19 +87,10 @@ public class PlayerViewActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
-                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
-                binding.setControlText.setText(String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
-                AutoHideSettingControl(R.drawable.volume);
-                Log.d(TAG_PLAYING, "볼륨 업");
+                volumeSetting(AudioManager.ADJUST_RAISE);
                 return true;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
-                binding.setControlText.setText(String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
-                if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) != 0) {
-                } else {
-                    AutoHideSettingControl(R.drawable.no_volume);
-                }
-                Log.d(TAG_PLAYING, "볼륨 다운");
+                volumeSetting(AudioManager.ADJUST_LOWER);
                 return true;
             case KeyEvent.KEYCODE_BACK:
                 closePlayer();
@@ -144,18 +119,6 @@ public class PlayerViewActivity extends AppCompatActivity {
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         int progress = SharedPreferenceManager.getInt(this, "bright");
 
-        if (getIntent().getCategories() != null && getIntent().getCategories().contains("AppBarNotification")) {
-            String s = SharedPreferenceManager.getString(this, "recent");
-            MediaItem item = MediaItem.fromUri(Uri.parse(s));
-            if ((int) SharedPreferenceManager.getLong(this,
-                    binding.title.getText().toString() + "_time") / 1000 != 0) {
-                exoPlayer.setMediaItem(item, (int) SharedPreferenceManager.getLong(this,
-                        binding.title.getText().toString() + "_time") / 1000);
-            } else {
-                exoPlayer.setMediaItem(item);
-            }
-        }
-
         if (progress != -1) {
             binding.mySeekBar.setProgress(progress);
         } else {
@@ -175,6 +138,7 @@ public class PlayerViewActivity extends AppCompatActivity {
         });
 
         binding.playerView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 float width = binding.playerView.getWidth();
@@ -191,6 +155,7 @@ public class PlayerViewActivity extends AppCompatActivity {
                             }
                         }
                         break;
+
                     case MotionEvent.ACTION_UP:
                         if (isTouch) {
                             isTouch = false;
@@ -201,6 +166,11 @@ public class PlayerViewActivity extends AppCompatActivity {
                             }
                         }
                         break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        Log.d("testtest", "Move X is " + event.getX());
+                        Log.d("testtest", "Move Y is " + event.getX());
+
                 }
                 return false;
             }
@@ -242,13 +212,17 @@ public class PlayerViewActivity extends AppCompatActivity {
             binding.playerView.showController();
             Log.d(TAG_PLAYING, "10초 앞으로");
         });
+
         binding.playerView.setControllerShowTimeoutMs(3000);
         binding.playerView.setPlayer(exoPlayer);
         ControllerVisibleChanged();
+        isPlayVideo();
+
         exoPlayer.prepare();
         exoPlayer.play();
+        binding.playbtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.pause, null));
         isPlaying = true;
-        isPlayVideo();
     }
 
     private void isPlayVideo() {
@@ -278,6 +252,29 @@ public class PlayerViewActivity extends AppCompatActivity {
         });
     }
 
+    private void volumeSetting(int up_down) {
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, up_down, AudioManager.FLAG_SHOW_UI);
+        binding.setControlText.setText(String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+        if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) != 0) {
+            AutoHideSettingControl(R.drawable.volume);
+        } else {
+            AutoHideSettingControl(R.drawable.no_volume);
+        }
+
+        if (up_down == AudioManager.ADJUST_LOWER)
+            Log.d(TAG_PLAYING, "볼륨 다운");
+        else if (up_down == AudioManager.ADJUST_RAISE)
+            Log.d(TAG_PLAYING, "볼륨 업");
+    }
+
+    private void playLoadTime() {
+        if ((int) SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time") / 1000 != 0)
+            current = SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time");
+        else
+            current = 0;
+    }
+
     private void showSettings() {
         binding.title.setVisibility(View.VISIBLE);
         binding.dashForward.setVisibility(View.VISIBLE);
@@ -289,7 +286,7 @@ public class PlayerViewActivity extends AppCompatActivity {
     private void closePlayer() {
         PlayerViewActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         finish();
-        overridePendingTransition(0, R.anim.down);
+        overridePendingTransition(0, R.anim.slide_down);
     }
 
     private void hideSettings() {
@@ -328,9 +325,7 @@ public class PlayerViewActivity extends AppCompatActivity {
         if (binding.setControlGroup.getVisibility() == View.GONE) {
             binding.setControlGroup.setVisibility(View.VISIBLE);
             Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(() -> {
-                binding.setControlGroup.setVisibility(View.GONE);
-            }, 1000);
+            handler.postDelayed(() -> binding.setControlGroup.setVisibility(View.GONE), 1000);
         }
     }
 }

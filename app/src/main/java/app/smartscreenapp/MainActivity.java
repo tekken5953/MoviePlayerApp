@@ -6,16 +6,34 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.icu.text.MessagePattern;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.LineBackgroundSpan;
+import android.text.style.UnderlineSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.util.FlagSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed((Runnable) () -> binding.viewPager.setVisibility(View.VISIBLE), 300);
         binding.leftArrow.bringToFront();
         binding.rightArrow.bringToFront();
+
     }
 
     @Override
@@ -83,10 +102,14 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("url", jsonDocument.getVideoURLs().get(position));
             intent.putExtra("title", binding.viewPagerTitle.getText().toString());
             SharedPreferenceManager.setString(this, "recent", jsonDocument.getVideoURLs().get(position));
-            startActivity(intent);
             makeScreenLandscape();
+            startActivity(intent);
         });
 
+        loadItemList();
+    }
+
+    private void loadItemList() {
         for (int i = 0; i < jsonDocument.getItemCount(); i++) {
             binding.viewPagerTitle.setText(jsonDocument.getTitles().get(i));
             addItem(jsonDocument.getPosterURIs().get(i));
