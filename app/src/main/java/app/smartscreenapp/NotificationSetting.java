@@ -47,7 +47,6 @@ public class NotificationSetting {
                     .setCategory("AppBarNotification")
                     .setCustomBigContentView(largeLayout);
 
-
             Notification notification = builder.build();
             manager.notify(1, notification);
         }

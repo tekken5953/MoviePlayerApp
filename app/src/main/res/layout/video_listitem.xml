@@ -6,19 +6,13 @@
     android:layout_gravity="center"
     android:id="@+id/listItemMain">
 
-    <androidx.cardview.widget.CardView
+    <ImageView
+        android:id="@+id/listItemImg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@android:color/transparent"
-        app:cardCornerRadius="15dp"
-        android:elevation="8dp">
-        <ImageView
-            android:id="@+id/listItemImg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="false"
-            android:src="@drawable/bg_image" />
-    </androidx.cardview.widget.CardView>
+        android:adjustViewBounds="false"
+        android:scaleType="centerCrop"
+        android:background="@drawable/background_img"
+        android:src="@drawable/bg_image" />
 
 </RelativeLayout>
