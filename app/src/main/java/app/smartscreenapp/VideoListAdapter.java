@@ -7,20 +7,12 @@
 package app.smartscreenapp;
 
 import android.content.Context;
-import android.graphics.Point;
-import android.media.Image;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -81,8 +73,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
                 .load(item.getThumbnail())
                 .error(R.drawable.no_thumbnail)
                 .into(holder.thumbnail);
-
-
     }
 
     // getItemCount() - 전체 데이터 갯수 리턴.

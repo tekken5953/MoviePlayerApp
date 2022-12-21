@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class JsonDocument {
-    static final String TAG_DOCUMENT = "TAG_document";
+    final String TAG_DOCUMENT = "TAG_document";
 
     private InputStream inputStream;
     private BufferedReader bufferedReader;

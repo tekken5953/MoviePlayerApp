@@ -3,8 +3,6 @@ package app.smartscreenapp;
 import static app.smartscreenapp.PlayerViewActivity.TAG_LIFECYCLE;
 
 import android.app.Application;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -15,7 +13,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 public class LifeCycleChecker extends Application implements LifecycleEventObserver {
 
-    public static boolean isForeground = false;
+    public boolean isForeground = false;
 
     @Override
     public void onCreate() {
@@ -33,4 +31,6 @@ public class LifeCycleChecker extends Application implements LifecycleEventObser
             Log.d(TAG_LIFECYCLE, "앱이 포그라운드로 전환");
         }
     }
+
+
 }
