@@ -3,19 +3,26 @@ package app.smartscreenapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 public class SharedPreferenceManager {
 
     public static final String PREFERENCES_NAME = "rebuild_preference";
 
-    private static final String DEFAULT_VALUE_STRING = "";
+    public static final String DEFAULT_VALUE_STRING = "";
 
-    private static final boolean DEFAULT_VALUE_BOOLEAN = false;
+    public static final boolean DEFAULT_VALUE_BOOLEAN = false;
 
-    private static final int DEFAULT_VALUE_INT = -1;
+    public static final int DEFAULT_VALUE_INT = -1;
 
-    private static final long DEFAULT_VALUE_LONG = -1L;
+    public static final long DEFAULT_VALUE_LONG = -1L;
 
-    private static final float DEFAULT_VALUE_FLOAT = -1F;
+    public static final float DEFAULT_VALUE_FLOAT = -1F;
 
     private static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
@@ -110,5 +117,31 @@ public class SharedPreferenceManager {
         SharedPreferences.Editor edit = prefs.edit();
         edit.clear();
         edit.apply();
+    }
+    // 키쌍 리스트 구하기
+    public static Map<String, Object> getAllList(Context context) {
+        JSONObject jsonObject = new JSONObject();
+        SharedPreferences prefs = getPreferences(context);
+        try {
+            for (int i = 0; i < prefs.getAll().size(); i++) {
+                jsonObject.put(prefs.getAll().keySet().toString(), prefs.getAll().values());
+            }
+            return toMap(jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //키를 제이슨 형태로 변환
+    public static Map<String, Object> toMap(JSONObject object) throws JSONException {
+        Map<String, Object> map = new HashMap<>();
+        Iterator<String> keysItr = object.keys();
+        while (keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = object.get(key);
+            map.put(key, value);
+        }
+        return map;
     }
 }

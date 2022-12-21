@@ -1,50 +1,18 @@
 package app.smartscreenapp;
 
-import static app.smartscreenapp.PlayerViewActivity.TAG_LIFECYCLE;
-
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Point;
-import android.graphics.drawable.Drawable;
-import android.icu.text.MessagePattern;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.SpannableString;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.LineBackgroundSpan;
-import android.text.style.UnderlineSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
-import com.google.android.exoplayer2.util.FlagSet;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 
 import app.smartscreenapp.databinding.ActivityMainBinding;
 //https://developer.android.com/training/transitions/start-activity?hl=ko 공유가 있는 애니메이션
@@ -54,9 +22,7 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     ArrayList<VideoListItem> mList = new ArrayList<>();
     VideoListAdapter adapter = new VideoListAdapter(mList);
-    Handler handler;
     final String TAG_MAIN = "tag_main";
-
     int currentItemPosition = 0;
     JsonDocument jsonDocument;
 
@@ -65,11 +31,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         binding.viewPager.setVisibility(View.GONE);
         makeScreenPortrait();
-        handler = new Handler(Looper.getMainLooper());
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed((Runnable) () -> binding.viewPager.setVisibility(View.VISIBLE), 300);
         binding.leftArrow.bringToFront();
         binding.rightArrow.bringToFront();
-
     }
 
     @Override
@@ -101,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, PlayerViewActivity.class);
             intent.putExtra("url", jsonDocument.getVideoURLs().get(position));
             intent.putExtra("title", binding.viewPagerTitle.getText().toString());
-            SharedPreferenceManager.setString(this, "recent", jsonDocument.getVideoURLs().get(position));
+            SharedPreferenceManager.setString(MainActivity.this,"recent", jsonDocument.getVideoURLs().get(position));
             makeScreenLandscape();
             startActivity(intent);
         });

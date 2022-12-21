@@ -2,7 +2,6 @@ package app.smartscreenapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -14,7 +13,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +20,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 
 import app.smartscreenapp.databinding.ActivityPlayerViewBinding;
 
@@ -31,33 +30,36 @@ public class PlayerViewActivity extends AppCompatActivity {
     //https://jinha3211.tistory.com/28 샘플 무료 동영상 URL
     private ActivityPlayerViewBinding binding;
     ExoPlayer exoPlayer;
-    String uri, title;
     boolean isPlaying = false;
     boolean isControllerShowing = true;
-    static final String TAG_PLAYING = "tag_playing";
+    final String TAG_PLAYING = "tag_playing";
     static final String TAG_LIFECYCLE = "tag_lifecycle";
     AudioManager audioManager;
-    long current;
+    long currentPlayTime = 0;
     MediaItem firstItem;
-    float saveDY, saveUY;
     boolean isTouch = false;
+    float saveUY, saveDY;
+    Context context = PlayerViewActivity.this;
 
     @Override
     protected void onStop() {
         Log.d(TAG_LIFECYCLE, "onStop");
         super.onStop();
         exoPlayer.stop();
-        SharedPreferenceManager.setInt(this, "bright", binding.mySeekBar.getProgress());
+        SharedPreferenceManager.setInt(context,"bright", binding.mySeekBar.getProgress());
         if ((int) exoPlayer.getCurrentPosition() / 1000 != (int) exoPlayer.getDuration() / 1000) {
             if ((int) exoPlayer.getCurrentPosition() / 1000 != 0) {
-                SharedPreferenceManager.setLong(this, binding.title.getText().toString() + "_time",
+                SharedPreferenceManager.setLong(context,binding.title.getText().toString() + "_time",
                         exoPlayer.getCurrentPosition());
             } else {
-                SharedPreferenceManager.setLong(this, binding.title.getText().toString() + "_time",
+                SharedPreferenceManager.setLong(context,binding.title.getText().toString() + "_time",
                         0);
             }
         } else {
-            SharedPreferenceManager.removeKey(this, binding.title.getText().toString() + "_time");
+            if (SharedPreferenceManager.getAllList(context).containsKey(binding.title.getText().toString() + "_time"))
+                SharedPreferenceManager.removeKey(context,binding.title.getText().toString() + "_time");
+            else
+                Log.e(TAG_PLAYING, "that KeySet is Empty");
         }
     }
 
@@ -72,9 +74,9 @@ public class PlayerViewActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            if (current != 0) {
+            if (currentPlayTime != 0) {
                 exoPlayer.clearMediaItems();
-                exoPlayer.setMediaItem(firstItem, current);
+                exoPlayer.setMediaItem(firstItem, currentPlayTime);
                 if (!exoPlayer.isPlaying()) {
                     exoPlayer.prepare();
                     exoPlayer.play();
@@ -106,20 +108,24 @@ public class PlayerViewActivity extends AppCompatActivity {
         binding = ActivityPlayerViewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FullScreenMode();
+        String title = null;
+        String uriStr = null;
         if (getIntent().getExtras().getString("url") != null &&
                 getIntent().getExtras().getString("title") != null) {
-            uri = getIntent().getExtras().getString("url");
+            uriStr = getIntent().getExtras().getString("url");
             title = getIntent().getExtras().getString("title");
         }
         exoPlayer = new ExoPlayer.Builder(this).build();
-        firstItem = MediaItem.fromUri(Uri.parse(uri));
+        if (uriStr != null)
+            firstItem = MediaItem.fromUri(Uri.parse(uriStr));
         exoPlayer.addMediaItem(0, firstItem);
-        binding.title.setText(title);
+        if (title != null)
+            binding.title.setText(title);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         WindowManager.LayoutParams lp = getWindow().getAttributes();
-        int progress = SharedPreferenceManager.getInt(this, "bright");
+        int progress = SharedPreferenceManager.getInt(context,"bright");
 
-        if (progress != -1) {
+        if (progress != SharedPreferenceManager.DEFAULT_VALUE_INT) {
             binding.mySeekBar.setProgress(progress);
         } else {
             // default bright
@@ -269,10 +275,11 @@ public class PlayerViewActivity extends AppCompatActivity {
     }
 
     private void playLoadTime() {
-        if ((int) SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time") / 1000 != 0)
-            current = SharedPreferenceManager.getLong(this, binding.title.getText().toString() + "_time");
+        int playTime = (int) SharedPreferenceManager.getLong(context,binding.title.getText().toString() + "_time") / 1000;
+        if (playTime != 0 && playTime != SharedPreferenceManager.DEFAULT_VALUE_LONG)
+            currentPlayTime = SharedPreferenceManager.getLong(context,binding.title.getText().toString() + "_time");
         else
-            current = 0;
+            currentPlayTime = 0;
     }
 
     private void showSettings() {
