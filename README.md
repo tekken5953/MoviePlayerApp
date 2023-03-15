@@ -10,6 +10,8 @@ Android Studio - __Java__ only
 
 _본 앱은 코딩연습을 위한 TestApp이므로 내포된 자료나 파일등은 관련성이 없으며, 실제 정보와 일치하지 않습니다._
 
+_Since this app is a TestApp for coding practice, the embedded data or files are not related and do not match the actual information._
+
 
 ----
 </br></br>
